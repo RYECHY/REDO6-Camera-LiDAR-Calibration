@@ -1,0 +1,34 @@
+--- a/src/lidar_detect.hpp
++++ b/src/lidar_detect.hpp
+@@ -7,6 +7,14 @@
+ 
+ #ifndef LIDAR_DETECT_HPP
+ #define LIDAR_DETECT_HPP
++/*
++Public modification notice added 2026-09-30.
++Includes local REDO6 changes collected 2026-09-30:
++- Log fitted/configured circle radius and mean radial error.
++- Change circle acceptance error threshold from 0.02 to 0.03 metres.
++Earlier local edit dates have not been independently established.
++Original author and GPL-2.0 license notices above are retained.
++*/
+ #include <sensor_msgs/msg/point_cloud2.hpp>
+ #include <Eigen/Dense>
+ #include <opencv2/opencv.hpp>
+@@ -229,8 +237,14 @@
+                 error /= inliers->indices.size();
+ 
+                 // 如果拟合误差较小，则认为是一个圆洞
+-                std::cout << "inliers->indices.size() " << inliers->indices.size() << " " << error << std::endl;
+-                if (error < 0.02)
++                std::cout
++          << "[circle_fit] cluster=" << i
++          << " inliers=" << inliers->indices.size()
++          << " fitted_radius=" << coefficients->values[2]
++          << " configured_radius=" << circle_radius_
++          << " mean_radius_error=" << error
++          << std::endl;
++                if (error < 0.03)
+                 {
+                     // 将恢复后的圆心坐标添加到点云中
+                     pcl::PointXYZ center_point;

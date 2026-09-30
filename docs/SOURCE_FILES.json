@@ -1,0 +1,100 @@
+{
+  "original_assets": [
+    {
+      "public_file": "config/front_camera_mid360_extrinsics_final.yaml",
+      "sha256": "cd9a1b9491462c5c9ace6d6288b4af128815194ad8e78d01bd8090aaba911ce0",
+      "treatment": "Original bytes preserved from user review archive"
+    },
+    {
+      "public_file": "results/calib_result.txt",
+      "sha256": "c173c653bab761901139ec9a2af7f371ed4d48da2d1ff1f42d1f1bd157b69c1b",
+      "treatment": "Original bytes preserved from user review archive"
+    },
+    {
+      "public_file": "images/qr_detect.png",
+      "sha256": "4b2c13793eb60b15ea14d0c1c55c7d383233bad79af77e1f3884659ae371aa2c",
+      "treatment": "Original bytes preserved from user review archive"
+    },
+    {
+      "public_file": "images/projection_board_check.png",
+      "sha256": "211c02abebd678e7ae4b6be3b845f1c2105bedcddaa96baeb813676146c6f4ed",
+      "treatment": "Original bytes preserved from user review archive"
+    },
+    {
+      "public_file": "images/rgb_img_overlay.png",
+      "sha256": "80cbaed327635cc0a09e3e16e7b3e135eacf0e361a190268af1d3332ec0b4379",
+      "treatment": "Original bytes preserved from user review archive"
+    },
+    {
+      "public_file": "scripts/lidar_camera_projection.py",
+      "sha256": "423e2cfbb2731f5f0a92569289b8e334ef0f67e478345cb8ace56e4b66b86cb9",
+      "treatment": "Original bytes preserved from user review archive"
+    },
+    {
+      "public_file": "scripts/colored_point_cloud.py",
+      "sha256": "695f7bc5d7d5aaa55deebf557a90087cca121f8a208fd46c716ee22451f6364a",
+      "treatment": "Original bytes preserved from user review archive"
+    },
+    {
+      "public_file": "scripts/raw_lidar_cloud.py",
+      "sha256": "b4ca3a60838ad597bb15f015ccb020c9b99ad9690301e18dba35c8d3bde042ba",
+      "treatment": "Original bytes preserved from user review archive"
+    },
+    {
+      "public_file": "config/fast_livo2/machine_dog_redo6_camera.yaml",
+      "sha256": "88210fc2c52bd6163c448b3350c3438dba84f8e8d56718fe2afb179251ee9d29",
+      "treatment": "Original bytes preserved from user review archive"
+    },
+    {
+      "public_file": "config/fast_livo2/rosbag_play_qos.yaml",
+      "sha256": "afc3a30ac5db0888bd54ea865187098b196a434d07ebcc580b40a89b8f172ecf",
+      "treatment": "Original bytes preserved from user review archive"
+    }
+  ],
+  "new_public_code": [
+    "scripts/check_calibration.py",
+    "scripts/analyze_correspondence_bag.py",
+    "launch/validate_livo.launch.py",
+    "scripts/collect_repro_sources.py"
+  ],
+  "edits": [
+    {
+      "file": "config/fast_calib/qr_params.template.yaml",
+      "description": "Correct old camera comment, replace three actual paths with explicit placeholders, retain numerical values."
+    },
+    {
+      "file": "docs/TEST_REPORT_20260901.md",
+      "description": "Public excerpt of historical report; input path, internal audit and source modification details omitted."
+    }
+  ],
+  "excluded": [
+    "company source",
+    "internal paths and accounts",
+    "original bags and logs",
+    "unverified-authorship capture script",
+    "complete third-party source trees and missing/unreviewed modifications"
+  ],
+  "third_party_patches": [
+    {
+      "file": "patches/fast_calib/0001-redo6-circle-fit.patch",
+      "sha256": "0cc651e4639a4374b15e44a0e924523490d0ca780b30eb116cd0783630ad507e",
+      "license": "GPL-2.0",
+      "upstream": "https://github.com/ichangjian/FAST-Calib-ROS2",
+      "baseline_commit": "707df94bf7a4acdcb806affed7a9e41ee179518c"
+    },
+    {
+      "file": "patches/fast_calib/0002-redo6-k3-distortion.patch",
+      "sha256": "3f72306d2928dee70fb9dca87b876098c65955d4381677de7191b1556e0166c5",
+      "license": "GPL-2.0",
+      "upstream": "https://github.com/ichangjian/FAST-Calib-ROS2",
+      "baseline_commit": "707df94bf7a4acdcb806affed7a9e41ee179518c"
+    },
+    {
+      "file": "patches/fast_livo2/0001-pixel-correspondence-and-image-ownership.patch",
+      "sha256": "9df2c4596faf14144f32e34e1961ee03614f6f054ca67fbfe4f513066b8a72e9",
+      "license": "GPL-2.0",
+      "upstream": "https://github.com/hku-mars/FAST-LIVO2",
+      "baseline_commit": "837b7bbc1431cb04cf936528e52c83c835efba8e"
+    }
+  ]
+}

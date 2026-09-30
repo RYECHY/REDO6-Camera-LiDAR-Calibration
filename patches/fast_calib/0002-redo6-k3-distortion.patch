@@ -1,0 +1,68 @@
+--- a/include/common_lib.h
++++ b/include/common_lib.h
+@@ -4,6 +4,14 @@
+ This file is subject to the terms and conditions outlined in the 'LICENSE' file,
+ which is included as part of this source code package.
+ */
++/*
++Public modification notice added 2026-09-30.
++Includes local project changes collected 2026-09-30:
++- Declare, load and store the fifth distortion coefficient k3.
++Earlier local edit dates have not been independently established.
++Original author and GPL-2.0 license notices above are retained.
++*/
++
+ 
+ #ifndef COMMON_LIB_H
+ #define COMMON_LIB_H
+@@ -66,7 +74,7 @@
+ struct Params
+ {
+   double x_min, x_max, y_min, y_max, z_min, z_max;
+-  double fx, fy, cx, cy, k1, k2, p1, p2;
++  double fx, fy, cx, cy, k1, k2, p1, p2, k3;
+   double marker_size, delta_width_qr_center, delta_height_qr_center;
+   double delta_width_circles, delta_height_circles, circle_radius;
+   int min_detected_markers;
+@@ -88,6 +96,7 @@
+   node->declare_parameter("k2", 0.10996870793601);
+   node->declare_parameter("p1", 0.000157303079833973);
+   node->declare_parameter("p2", 0.000544930726278493);
++  node->declare_parameter("k3", 0.0);
+   node->declare_parameter("marker_size", 0.2);
+   node->declare_parameter("delta_width_qr_center", 0.55);
+   node->declare_parameter("delta_height_qr_center", 0.35);
+@@ -114,6 +123,7 @@
+   node->get_parameter_or("k2", params.k2, 0.10996870793601);
+   node->get_parameter_or("p1", params.p1, 0.000157303079833973);
+   node->get_parameter_or("p2", params.p2, 0.000544930726278493);
++  node->get_parameter_or("k3", params.k3, 0.0);
+   node->get_parameter_or("marker_size", params.marker_size, 0.2);
+   node->get_parameter_or("delta_width_qr_center", params.delta_width_qr_center, 0.55);
+   node->get_parameter_or("delta_height_qr_center", params.delta_height_qr_center, 0.35);
+--- a/src/qr_detect.hpp
++++ b/src/qr_detect.hpp
+@@ -4,6 +4,14 @@
+ This file is subject to the terms and conditions outlined in the 'LICENSE' file,
+ which is included as part of this source code package.
+ */
++/*
++Public modification notice added 2026-09-30.
++Includes local project changes collected 2026-09-30:
++- Use params.k3 in the five-coefficient camera distortion model.
++Earlier local edit dates have not been independently established.
++Original author and GPL-2.0 license notices above are retained.
++*/
++
+ 
+ #ifndef QR_DETECT_HPP
+ #define QR_DETECT_HPP
+@@ -44,7 +52,7 @@
+                      0, 0, 1);
+ 
+     // Initialize distortion coefficients
+-    distCoeffs_ = (cv::Mat_<float>(1, 5) << params.k1, params.k2, params.p1, params.p2, 0);
++    distCoeffs_ = (cv::Mat_<float>(1, 5) << params.k1, params.k2, params.p1, params.p2, params.k3);
+ 
+     // Initialize QR dictionary
+     dictionary_ = cv::aruco::getPredefinedDictionary(cv::aruco::DICT_6X6_250);

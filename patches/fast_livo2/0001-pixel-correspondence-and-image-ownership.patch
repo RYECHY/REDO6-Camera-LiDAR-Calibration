@@ -1,0 +1,189 @@
+--- a/include/LIVMapper.h
++++ b/include/LIVMapper.h
+@@ -9,6 +9,14 @@
+ This file is subject to the terms and conditions outlined in the 'LICENSE' file,
+ which is included as part of this source code package.
+ */
++/*
++Public modification notice added 2026-09-30.
++Includes local project changes collected 2026-09-30:
++- Declare the pixel-to-world-point correspondence publisher.
++Earlier local edit dates have not been independently established.
++Original author and GPL-2.0 license notices above are retained.
++*/
++
+ 
+ #ifndef LIV_MAPPER_H
+ #define LIV_MAPPER_H
+@@ -171,6 +179,7 @@
+   rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr sub_imu;
+   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr sub_img;
+   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pubLaserCloudFullRes;
++  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pubPixelPointCorr;
+   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr pubNormal;
+   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pubSubVisualMap;
+   rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr pubLaserCloudEffect;
+--- a/src/LIVMapper.cpp
++++ b/src/LIVMapper.cpp
+@@ -9,9 +9,19 @@
+ This file is subject to the terms and conditions outlined in the 'LICENSE' file,
+ which is included as part of this source code package.
+ */
++/*
++Public modification notice added 2026-09-30.
++Includes local project changes collected 2026-09-30:
++- Publish world xyz, image uv and camera-Z depth; own queued image data.
++Earlier local edit dates have not been independently established.
++Original author and GPL-2.0 license notices above are retained.
++*/
++
+ 
+ #include "LIVMapper.h"
+ #include <vikit/camera_loader.h>
++#include <sensor_msgs/point_cloud2_iterator.hpp>
++#include <array>
+ 
+ using namespace Sophus;
+ LIVMapper::LIVMapper(rclcpp::Node::SharedPtr &node, std::string node_name)
+@@ -267,6 +277,7 @@
+   sub_img = this->node->create_subscription<sensor_msgs::msg::Image>(img_topic, 200000, std::bind(&LIVMapper::img_cbk, this, std::placeholders::_1));
+   
+   pubLaserCloudFullRes = this->node->create_publisher<sensor_msgs::msg::PointCloud2>("/cloud_registered", 100);
++  pubPixelPointCorr = this->node->create_publisher<sensor_msgs::msg::PointCloud2>("/pixel_point_correspondence", 10);
+   pubNormal = this->node->create_publisher<visualization_msgs::msg::MarkerArray>("/visualization_marker", 100);
+   pubSubVisualMap = this->node->create_publisher<sensor_msgs::msg::PointCloud2>("/cloud_visual_sub_map_before", 100);
+   pubLaserCloudEffect = this->node->create_publisher<sensor_msgs::msg::PointCloud2>("/cloud_effected", 100);
+@@ -897,9 +908,9 @@
+ 
+ cv::Mat LIVMapper::getImageFromMsg(const sensor_msgs::msg::Image::ConstSharedPtr &img_msg)
+ {
+-  cv::Mat img;
+-  img = cv_bridge::toCvShare(img_msg, "bgr8")->image;
+-  return img;
++  // The image is queued beyond the lifetime of img_msg.  Keep an owned copy;
++  // returning the toCvShare() view here leaves img_buffer with dangling data.
++  return cv_bridge::toCvShare(img_msg, "bgr8")->image.clone();
+ }
+ 
+ // static int i = 0;
+@@ -1222,6 +1233,9 @@
+       pub_num = 1;
+       size_t size = pcl_wait_pub->points.size();
+       laserCloudWorldRGB->reserve(size);
++      std::vector<std::array<float, 6>> pixel_point_pairs;
++      pixel_point_pairs.reserve(size);
++      // M1 record: x_w, y_w, z_w, u, v, camera_z_depth.
+       // double inv_expo = _state.inv_expo_time;
+       cv::Mat img_rgb = vio_manager->img_rgb;
+       for (size_t i = 0; i < size; i++)
+@@ -1245,8 +1259,70 @@
+           // if (pointRGB.r > 255) pointRGB.r = 255; else if (pointRGB.r < 0) pointRGB.r = 0;
+           // if (pointRGB.g > 255) pointRGB.g = 255; else if (pointRGB.g < 0) pointRGB.g = 0;
+           // if (pointRGB.b > 255) pointRGB.b = 255; else if (pointRGB.b < 0) pointRGB.b = 0;
+-          if (pf.norm() > blind_rgb_points) laserCloudWorldRGB->push_back(pointRGB);
++          if (pf.norm() > blind_rgb_points)
++          {
++            laserCloudWorldRGB->push_back(pointRGB);
++
++            // M1: reuse FAST-LIVO2's existing world-point -> current-image projection.
++            pixel_point_pairs.push_back({
++              static_cast<float>(p_w[0]),
++              static_cast<float>(p_w[1]),
++              static_cast<float>(p_w[2]),
++              static_cast<float>(pc[0]),
++              static_cast<float>(pc[1]),
++              static_cast<float>(pf[2])
++            });
++          }
+         }
++      }
++
++      // M1 semantic thin interface.
++      // PointCloud2 fields:
++      //   x,y,z = point in FAST-LIVO2 world frame (camera_init)
++      //   u,v   = pixel coordinate in the current image
++      //   depth = z coordinate in the current camera frame
++      if (!pixel_point_pairs.empty())
++      {
++        sensor_msgs::msg::PointCloud2 corr_msg;
++        corr_msg.header.stamp = sec2Stamp(LidarMeasures.measures.back().vio_time);
++        corr_msg.header.frame_id = "camera_init";
++
++        sensor_msgs::PointCloud2Modifier modifier(corr_msg);
++        modifier.setPointCloud2Fields(
++          6,
++          "x", 1, sensor_msgs::msg::PointField::FLOAT32,
++          "y", 1, sensor_msgs::msg::PointField::FLOAT32,
++          "z", 1, sensor_msgs::msg::PointField::FLOAT32,
++          "u", 1, sensor_msgs::msg::PointField::FLOAT32,
++          "v", 1, sensor_msgs::msg::PointField::FLOAT32,
++          "depth", 1, sensor_msgs::msg::PointField::FLOAT32);
++        modifier.resize(pixel_point_pairs.size());
++
++        sensor_msgs::PointCloud2Iterator<float> iter_x(corr_msg, "x");
++        sensor_msgs::PointCloud2Iterator<float> iter_y(corr_msg, "y");
++        sensor_msgs::PointCloud2Iterator<float> iter_z(corr_msg, "z");
++        sensor_msgs::PointCloud2Iterator<float> iter_u(corr_msg, "u");
++        sensor_msgs::PointCloud2Iterator<float> iter_v(corr_msg, "v");
++        sensor_msgs::PointCloud2Iterator<float> iter_depth(corr_msg, "depth");
++
++        for (const auto &pair : pixel_point_pairs)
++        {
++          *iter_x = pair[0];
++          *iter_y = pair[1];
++          *iter_z = pair[2];
++          *iter_u = pair[3];
++          *iter_v = pair[4];
++          *iter_depth = pair[5];
++
++          ++iter_x;
++          ++iter_y;
++          ++iter_z;
++          ++iter_u;
++          ++iter_v;
++          ++iter_depth;
++        }
++
++        pubPixelPointCorr->publish(corr_msg);
+       }
+     }
+   }
+@@ -1446,4 +1522,4 @@
+   msg_body_pose.header.frame_id = "camera_init";
+   path.poses.push_back(msg_body_pose);
+   pubPath->publish(path);
+-}
+\ No newline at end of file
++}
+--- a/src/vio.cpp
++++ b/src/vio.cpp
+@@ -9,6 +9,14 @@
+ This file is subject to the terms and conditions outlined in the 'LICENSE' file,
+ which is included as part of this source code package.
+ */
++/*
++Public modification notice added 2026-09-30.
++Includes local project changes collected 2026-09-30:
++- Draw every other selected visual-map point; correct its thinning comment.
++Earlier local edit dates have not been independently established.
++Original author and GPL-2.0 license notices above are retained.
++*/
++
+ 
+ #include "vio.h"
+ 
+@@ -418,7 +426,13 @@
+ 
+       if (new_frame_->cam_->isInFrame(px.cast<int>(), border))
+       {
+-        // cv::circle(img_cp, cv::Point2f(px[0], px[1]), 3, cv::Scalar(0, 0, 255), -1, 8);
++        // M1 visualization: projected 3D world points on the current RGB image.
++        // Draw only 1/2 of points to keep the image readable and reduce overhead.
++        if ((i % 2) == 0)
++        {
++          cv::circle(img_cp, cv::Point2f(px[0], px[1]), 2,
++                     cv::Scalar(0, 0, 255), -1, 8);
++        }
+         float depth = pt_c[2];
+         int col = int(px[0]);
+         int row = int(px[1]);

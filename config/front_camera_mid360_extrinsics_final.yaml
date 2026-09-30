@@ -1,0 +1,47 @@
+calibration_name: front_camera_mid360_redo6
+calibration_status: validated
+calibration_date: "2026-08-17"
+
+frames:
+  lidar_frame: livox_frame
+  camera_frame: camera_frame
+
+camera:
+  model: pinhole
+  width: 1920
+  height: 1080
+  fx: 796.164262460850
+  fy: 796.565439605239
+  cx: 998.040267016264
+  cy: 586.594945318602
+  distortion_model: plumb_bob
+  distortion:
+    [-0.107115015572,
+      0.014040533509,
+      0.000011518208,
+      0.000091001532,
+     -0.000901838357]
+
+T_cam_lidar:
+  rotation:
+    [-0.020792, -0.999597,  0.019323,
+      0.520325, -0.027322, -0.853531,
+      0.853715, -0.007692,  0.520683]
+  translation:
+    [0.002680, -0.253080, 0.059294]
+
+rmse_m: 0.0041
+
+lidar_crop:
+  x_min: 2.55
+  x_max: 3.25
+  y_min: -0.95
+  y_max: 0.85
+  z_min: -0.15
+  z_max: 1.25
+
+validation:
+  camera_centers: 4
+  lidar_edge_clusters: 4
+  projection_overlay: passed
+  colored_cloud_nonempty: true

@@ -1,0 +1,89 @@
+{
+  "fast_calib": {
+    "repository": "https://github.com/ichangjian/FAST-Calib-ROS2",
+    "baseline_commit": "707df94bf7a4acdcb806affed7a9e41ee179518c",
+    "baseline_verification": "All listed source files and LICENSE retrieved from the exact public commit; collected diffs reproduce uploaded source bytes.",
+    "license": "GPL-2.0",
+    "license_sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+    "patches": [
+      "patches/fast_calib/0001-redo6-circle-fit.patch",
+      "patches/fast_calib/0002-redo6-k3-distortion.patch"
+    ],
+    "files": [
+      {
+        "file": "src/lidar_detect.hpp",
+        "baseline_sha256": "d0afcdc1c11920ae67a5b0abb8917be67eb1d448d2bf45364fd8043238e00a2e",
+        "collected_local_sha256": "da571fbab2eca70b8107a1d37d9ce2722cac05e283dc448d814f730451bdc94d",
+        "published_result_sha256": "182b5ddd220526f0546d8454e9b14b1b6b1b2774accbcf2c9b44043edbbb74e4",
+        "publication_only_edits": [
+          "dated modification notice"
+        ]
+      },
+      {
+        "file": "include/common_lib.h",
+        "baseline_sha256": "d593efe3a91dae39d1a5d37b5b58093e58140f952e89d4626dc6da557d28079c",
+        "collected_local_sha256": "c9b978746f4065b47333adadf92ef1a64c5ec7ceac2f5f8280d4c61b32d3a633",
+        "published_result_sha256": "2f2eeeb12e5ef237a5125afcfd9d1c028717c6f8d8a516d330bb20ec21361d0e",
+        "publication_only_edits": [
+          "dated modification notice"
+        ]
+      },
+      {
+        "file": "src/qr_detect.hpp",
+        "baseline_sha256": "901fa5336f008ad838fbb4da17c831cbecfa60db277622516fc350f9db7a4654",
+        "collected_local_sha256": "688a19025f3acbb409822a4655db5f699da2fdbbd17606852cd04ac3f9ccdd9f",
+        "published_result_sha256": "5117bbbbb26f287937fcfb00371bd1efc8b2b8982caf4bfa065918f833cfdfe0",
+        "publication_only_edits": [
+          "dated modification notice"
+        ]
+      }
+    ],
+    "patch_validation": "git apply --check and sequential apply passed; resulting bytes equal the documented publication variants.",
+    "historical_revision_note": "Collected HEAD plus these selected files is not independently established as the full exact historical runtime state.",
+    "runtime_validation": "No ROS/PCL build, solver execution or bag replay performed for this publication."
+  },
+  "fast_livo2": {
+    "repository": "https://github.com/hku-mars/FAST-LIVO2",
+    "baseline_commit": "837b7bbc1431cb04cf936528e52c83c835efba8e",
+    "baseline_verification": "All listed source files and LICENSE retrieved from the exact public commit; collected diffs reproduce uploaded source bytes.",
+    "license": "GPL-2.0",
+    "license_sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+    "patches": [
+      "patches/fast_livo2/0001-pixel-correspondence-and-image-ownership.patch"
+    ],
+    "files": [
+      {
+        "file": "include/LIVMapper.h",
+        "baseline_sha256": "23a9069a1493236742d47b4a2f0acf064649933d62773dcddefe9277f75c4ace",
+        "collected_local_sha256": "2a7274c469398571099f8e50e41ae57560d46957df911c808be21ae69a0e85f2",
+        "published_result_sha256": "918b7f6b5c16d337e81bdceedcf5d3eed69421dd0d308f168ee00c67c38b63fa",
+        "publication_only_edits": [
+          "dated modification notice"
+        ]
+      },
+      {
+        "file": "src/LIVMapper.cpp",
+        "baseline_sha256": "dd082ff0a4560c6aa220ccd21ac588d79448092443d5593231b1574750d36afd",
+        "collected_local_sha256": "de117573dd5cb863b8f6fb2e373b6a52ad080c425a870a6f381ee9cb16a4c24c",
+        "published_result_sha256": "bb9b7e86c64f2d43f8046cfb3955b6d8725713b361e464f0fb144af09a058399",
+        "publication_only_edits": [
+          "dated modification notice"
+        ]
+      },
+      {
+        "file": "src/vio.cpp",
+        "baseline_sha256": "5786aeca9a26c796953430d471d5428279a5590c084b07dc945647aa88048911",
+        "collected_local_sha256": "3970da468e2c7b1c9a3eed995ead2439f88e7127155507c3f54f913db20fb036",
+        "published_result_sha256": "7b12296ff557f9855172e497de48567de054f725287a95cd0e312d15fcdd84af",
+        "publication_only_edits": [
+          "dated modification notice",
+          "visualization comment corrected from 1/5 to 1/2; code unchanged"
+        ]
+      }
+    ],
+    "patch_validation": "git apply --check and sequential apply passed; resulting bytes equal the documented publication variants.",
+    "historical_revision_note": "Collected HEAD plus these selected files is not independently established as the full exact historical runtime state.",
+    "runtime_validation": "No ROS/PCL build, solver execution or bag replay performed for this publication.",
+    "license_note": "Repository LICENSE and source headers refer to GPL-2.0; package.xml BSD label does not relicense these patches."
+  }
+}

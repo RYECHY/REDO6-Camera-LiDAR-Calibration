@@ -1,0 +1,3 @@
+# Local numerical checker only. ROS examples use system ROS dependencies.
+numpy
+PyYAML

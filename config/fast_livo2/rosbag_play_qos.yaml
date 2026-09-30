@@ -1,0 +1,25 @@
+/front_camera/image_compressed:
+  history: keep_last
+  depth: 10
+  reliability: reliable
+  durability: volatile
+/livox/lidar:
+  history: keep_last
+  depth: 256
+  reliability: reliable
+  durability: volatile
+/livox/imu:
+  history: keep_last
+  depth: 256
+  reliability: reliable
+  durability: volatile
+/tf:
+  history: keep_last
+  depth: 100
+  reliability: reliable
+  durability: volatile
+/tf_static:
+  history: keep_last
+  depth: 1
+  reliability: reliable
+  durability: transient_local
